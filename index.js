@@ -1,7 +1,21 @@
 (function() {
 	"use strict";
 
-	module.exports = function(client) {
+	module.exports = function(server, client) {
+		var io = require('socket.io')(server);
+
+		io.sockets.on('connection', function(socket) {
+			socket.on('subscribe', function(thing) {
+				if (typeof thing == 'string')
+					socket.join(thing);
+			});
+
+			socket.on('unsubscribe', function(thing) {
+				if (typeof thing == 'string')
+					socket.leave(thing);
+			});
+		});
+
 		var baudcast = {};
 
 		var template = {
@@ -46,6 +60,8 @@
 				content: content
 			};
 
+			io.sockets.in(thing).emit('baudcast', data);
+
 			client.set(thing+':last-baudcast', JSON.stringify(data));
 			client.lpush(thing+':baudcasts', JSON.stringify(data));
 
@@ -83,8 +99,6 @@
 
 		baudcast.handleGetLastBaudcast = function(req, res) {
 			var thing = req.params.thing;
-
-			var data = baudcast.getLastBaudcast(thing);
 
 			return client.get(thing+':last-baudcast', function(err, reply) {
 				if (err) {

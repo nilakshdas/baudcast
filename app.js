@@ -1,7 +1,8 @@
 var app = require('express')();
 var bodyParser = require('body-parser');
+var server = require('http').Server(app);
 var client = require('redis').createClient();
-var baudcast = require('./')(client);
+var baudcast = require('./')(server, client);
 
 app.use(bodyParser());
 
@@ -12,4 +13,5 @@ app.get('/baudcasts/:thing/last', baudcast.handleGetLastBaudcast); // get last b
 app.get('/baudcasts/:thing', baudcast.handleGetBaudcasts); // get last 800 baudcasts
 
 app.listen(3000);
-console.log('Listening on port 3000...');
+server.listen(8888);
+console.log('Server on port 3000, socket on port 8888...');

@@ -2,7 +2,7 @@
     "name": "baudcast",
     "version": "0.0.0",
     "license": "MIT",
-    "description": "An open source, realtime messaging API; designed for the internet of things.",
+    "description": "An open source, socket-based, realtime messaging API; designed for the internet of things.",
     "author": {
         "name": "Nilaksh Das",
         "url": "https://github.com/nilakshdas"
