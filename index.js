@@ -32,7 +32,7 @@
 				return response;
 			},
 
-			repondFailure: function(why, apiErrorCode) {
+			respondFailure: function(why, apiErrorCode) {
 				var response = {
 					error : {
 						code: apiErrorCode || 500,
@@ -44,6 +44,10 @@
 			}
 		};
 
+		baudcast.useTemplate = function(newTemplate) {
+			template = newTemplate;
+		}
+
 		baudcast.handleMakeNewBaudcast = function(req, res) {
 			var thing = req.params.thing, content;
 
@@ -52,7 +56,7 @@
 			else if (req.query !== undefined && Object.keys(req.query).length != 0)
 				content = req.query;
 			else
-				return res.json(template.repondFailure('Invalid request.', 400));
+				return res.json(template.respondFailure('Invalid request.', 400));
 
 			var data = {
 				thing: thing,
@@ -93,7 +97,7 @@
 				if (data.length > 0)
 					return res.json(template.respondSuccess('get', 'baudcasts', data));
 				else
-					return res.json(template.repondFailure('Could not find any baudcasts from '+thing+'.', 404));
+					return res.json(template.respondFailure('Could not find any baudcasts from '+thing+'.', 404));
 			});
 		};
 
@@ -111,7 +115,7 @@
 				if (data !== null)
 					return res.json(template.respondSuccess('get', 'baudcast', data));
 				else
-					return res.json(template.repondFailure('Could not find any baudcasts from '+thing+'.', 404));
+					return res.json(template.respondFailure('Could not find any baudcasts from '+thing+'.', 404));
 			});
 		};
 

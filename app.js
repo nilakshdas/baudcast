@@ -4,13 +4,53 @@ var server = require('http').Server(app);
 var client = require('redis').createClient();
 var baudcast = require('./')(server, client);
 
-app.use(bodyParser());
+app.use(bodyParser()); // necessary for handling POST variables
 
 app.get('/', function(req, res) { res.send('<i>baudcasting</i> things...'); });
 
-app.post('/baudcast/:thing', baudcast.handleMakeNewBaudcast); // make a baudcast
-app.get('/baudcasts/:thing/last', baudcast.handleGetLastBaudcast); // get last baudcast
-app.get('/baudcasts/:thing', baudcast.handleGetBaudcasts); // get last 800 baudcasts
+
+/* set up endpoint to make a baudcast */
+app.post('/baudcast/for/:thing', baudcast.handleMakeNewBaudcast);
+app.get('/baudcast/for/:thing', baudcast.handleMakeNewBaudcast); // GET works too
+
+/* set up endpoint to get last baudcast */
+app.get('/get/last/baudcast/from/:thing', baudcast.handleGetLastBaudcast);
+
+/* set up endpoint to get last 800 baudcasts */
+app.get('/get/baudcasts/from/:thing', baudcast.handleGetBaudcasts);
+
+
+/* set up custom response template */
+var template = {
+	verb: {
+		get: 'getting',
+		create: 'creating'
+	},
+
+	respondSuccess: function (action, resourceType, data) {
+		var response = {
+			this: "succeeded",
+			by: this.verb[action],
+			the: resourceType,
+			with: data
+		};
+
+		return response;
+	},
+
+	respondFailure: function(why, apiErrorCode) {
+		var response = {
+			this: "failed",
+			with: apiErrorCode || 500,
+			because: why
+		};
+
+		return response;
+	}
+};
+
+baudcast.useTemplate(template);
+
 
 app.listen(3000);
 server.listen(8888);
