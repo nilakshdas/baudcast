@@ -89,7 +89,7 @@ console.log('Server on port 3000, socket on port 8888...');
 Simply call the following URL(as set up in the code) to make a new *baudcast*:
 
 ```
-http://{some-host}:8888/baudcast/for/{thing}?foo=bar&baz=qux
+http://{some-host}:3000/baudcast/for/{thing}?foo=bar&baz=qux
 ```
 
 The server will respond with:
@@ -117,7 +117,7 @@ The POST method can also be used to *baudcast* valid JSON data.
 The last 800 *baudcasts* made by a *thing* over the last 24 hours can be retrieved by calling the following URL:
 
 ```
-http://{some-host}:8888/get/baudcasts/from/{thing}
+http://{some-host}:3000/get/baudcasts/from/{thing}
 ```
 
 The server will return an array of *baudcasts* in the following form:
@@ -149,7 +149,7 @@ The server will return an array of *baudcasts* in the following form:
 The latest *baudcast* made by a thing can be retrieved by making a call to the following URL:
 
 ```
-http://{some-host}:8888/get/last/baudcast/from/{thing}
+http://{some-host}:3000/get/last/baudcast/from/{thing}
 ```
 
 The server will return a single baudcast in the following form:
@@ -196,11 +196,11 @@ Each *baudcast* received by the script will be a JSON Object of the form:
 
 ```json
 {
-	thing: "{thing}",
-	created: 1402642240997,
-	content: {
-		foo: "bar",
-		baz: "qux"
+	"thing": "{thing}",
+	"created": 1402642240997,
+	"content": {
+		"foo": "bar",
+		"baz": "qux"
 	}
 }
 ```
