@@ -4,7 +4,7 @@
 
 A socket-based, realtime messaging API; designed for the **internet of things**.
 
-*baudcast* allows machine-to-machine (M2M) communication of internet-connected devices over a simple and configurable REST API.
+*baudcast* is a node module that allows machine-to-machine (M2M) communication of internet-connected devices over a simple and configurable REST API.
 
 No registration/setup required, just start *baudcasting* and receiving key-value data right away.
 
