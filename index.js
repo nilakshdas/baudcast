@@ -3,6 +3,7 @@
 
 	module.exports = function(server, client) {
 		var io = require('socket.io')(server);
+		var EventEmitter = require('events').EventEmitter;
 
 		io.sockets.on('connection', function(socket) {
 			socket.on('subscribe', function(thing) {
@@ -16,7 +17,7 @@
 			});
 		});
 
-		var baudcast = {};
+		var emitter = new EventEmitter();
 
 		var template = {
 			verb: {
@@ -44,11 +45,39 @@
 			}
 		};
 
-		baudcast.useTemplate = function(newTemplate) {
-			template = newTemplate;
+		var baudcast = {route: {}};
+
+		baudcast.for = function(thing, content) {
+			var data = {
+				thing: thing,
+				created: (new Date()).getTime(),
+				content: content
+			};
+
+			emitter.emit(thing+'-baudcast', data);
+			io.sockets.in(thing).emit('baudcast', data);
+
+			client.set(thing+':last-baudcast', JSON.stringify(data));
+			client.lpush(thing+':baudcasts', JSON.stringify(data));
+
+			client.llen(thing+':baudcasts', function(err, len) {
+				if (len > 800)
+					client.rpop(thing+':baudcasts');
+			});
+
+			client.expire(thing+':last-baudcast', 86400);
+			client.expire(thing+':baudcasts', 86400);
+		};
+
+		baudcast.from = function(thing, callback) {
+			emitter.on(thing+'-baudcast', callback);
 		}
 
-		baudcast.handleMakeNewBaudcast = function(req, res) {
+		baudcast.useTemplate = function(newTemplate) {
+			template = newTemplate;
+		};
+
+		baudcast.route.makeNewBaudcast = function(req, res) {
 			var thing = req.params.thing, content;
 
 			if (req.body !== undefined && Object.keys(req.body).length != 0)
@@ -64,6 +93,7 @@
 				content: content
 			};
 
+			emitter.emit(thing+'-baudcast', data);
 			io.sockets.in(thing).emit('baudcast', data);
 
 			client.set(thing+':last-baudcast', JSON.stringify(data));
@@ -80,7 +110,7 @@
 			return res.json(template.respondSuccess('create', 'baudcast', data));
 		};
 
-		baudcast.handleGetBaudcasts = function(req, res) {
+		baudcast.route.getBaudcasts = function(req, res) {
 			var thing = req.params.thing;
 
 			return client.lrange(thing+':baudcasts', 0, -1, function(err, reply) {
@@ -101,7 +131,7 @@
 			});
 		};
 
-		baudcast.handleGetLastBaudcast = function(req, res) {
+		baudcast.route.getLastBaudcast = function(req, res) {
 			var thing = req.params.thing;
 
 			return client.get(thing+':last-baudcast', function(err, reply) {

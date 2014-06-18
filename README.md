@@ -29,7 +29,7 @@ var app = require('express')();
 var bodyParser = require('body-parser');
 var server = require('http').Server(app);
 var client = require('redis').createClient();
-var baudcast = require('./')(server, client);
+var baudcast = require('baudcast')(server, client);
 
 app.use(bodyParser()); // necessary for handling POST variables
 
@@ -37,14 +37,14 @@ app.get('/', function(req, res) { res.send('<i>baudcasting</i> things...'); });
 
 
 /* set up endpoint to make a baudcast */
-app.post('/baudcast/for/:thing', baudcast.handleMakeNewBaudcast);
-app.get('/baudcast/for/:thing', baudcast.handleMakeNewBaudcast); // GET works too
+app.post('/baudcast/for/:thing', baudcast.route.makeNewBaudcast);
+app.get('/baudcast/for/:thing', baudcast.route.makeNewBaudcast); // GET works too
 
 /* set up endpoint to get last baudcast */
-app.get('/get/last/baudcast/from/:thing', baudcast.handleGetLastBaudcast);
+app.get('/get/last/baudcast/from/:thing', baudcast.route.getLastBaudcast);
 
 /* set up endpoint to get last 800 baudcasts */
-app.get('/get/baudcasts/from/:thing', baudcast.handleGetBaudcasts);
+app.get('/get/baudcasts/from/:thing', baudcast.route.getBaudcasts);
 
 
 /* set up custom response template */
@@ -207,20 +207,28 @@ Each *baudcast* received by the script will be a JSON Object of the form:
 
 ## API
 
-#### handleMakeNewBaudcast
+#### for(thing, content)
+
+This function makes a new *baudcast* for a *thing*.
+
+#### from(thing, callback)
+
+This function executes callback(baudcast) everytime a *thing* makes a new *baudcast*.
+
+#### route.makeNewBaudcast(req, res)
 
 This is the app handler for making a new *baudcast*. This supports POST as well as GET variables.
 
-#### handleGetLastBaudcast
+#### route.getLastBaudcast(req, res)
 
 This is the handler for retrieving the most recent *baudcast* made by a *thing*.
 Since *baudcasts* are realtime and ephemeral, they are only stored for 24 hours.
 
-#### handleGetBaudcasts
+#### route.getBaudcasts(req, res)
 
 This is the handler for retrieving all the *baudcasts* made by a *thing*.
 Again, because *baudcasts* are ephemeral, only the last 800 *baudcasts* are stored.
 
-#### useTemplate
+#### useTemplate(newTemplate)
 
 This function is used to specify the response template of the REST API. Note that it's argument is a JSON object that should contain the methods `respondSuccess` and `respondFailure`, whose signatures should follow guidelines in the example.
