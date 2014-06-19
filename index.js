@@ -2,6 +2,16 @@
 	"use strict";
 
 	module.exports = function(server, client) {
+		if (!server) {
+			var server = require('http').Server();
+
+			server.listen(8888);
+		}
+
+		if (!client) {
+			var client = require('redis').createClient();
+		}
+
 		var io = require('socket.io')(server);
 		var EventEmitter = require('events').EventEmitter;
 
@@ -76,7 +86,7 @@
 
 		baudcast.from = function(thing, callback) {
 			emitter.on(thing+'-baudcast', callback);
-		}
+		};
 
 		baudcast.useTemplate = function(newTemplate) {
 			template = newTemplate;
