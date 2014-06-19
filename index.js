@@ -15,6 +15,11 @@
 				if (typeof thing == 'string')
 					socket.leave(thing);
 			});
+
+			socket.on('baudcast', function(thing, content) {
+				if (typeof thing == 'string')
+					baudcast.for(thing, content);
+			});
 		});
 
 		var emitter = new EventEmitter();

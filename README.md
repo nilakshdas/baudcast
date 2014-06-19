@@ -170,9 +170,9 @@ The server will return a single baudcast in the following form:
 }
 ```
 
-Apart from the API endpoint, a device can also subscribe to a *thing* using the popular `socket.io` framework.
+Apart from the API endpoints, a device can also subscribe to a *thing* (or publish a new *baudcast*) using the popular **socket.io** framework.
 
-To subscribe to a *thing* using javascript, just include the `socket.io` script:
+To use *baudcast* with js, just include the **socket.io** script:
 
 ```html
 <script src="https://cdn.socket.io/socket.io-1.0.4.js"></script>
@@ -190,17 +190,19 @@ socket.on('baudcast', function(baudcast) {
 	console.log(baudcast);
 
 });
+
+socket.emit('baudcast', '{another-thing}', {ping: 'pong'});
 ```
 
-Each *baudcast* received by the script will be a JSON Object of the form:
+Each *baudcast* received, for a subscribed *thing* will be an Object of the form:
 
-```json
+```
 {
-	"thing": "{thing}",
-	"created": 1402642240997,
-	"content": {
-		"foo": "bar",
-		"baz": "qux"
+	thing: "{thing}",
+	created: 1402642240997,
+	content: {
+		foo: "bar",
+		baz: "qux"
 	}
 }
 ```
