@@ -10,12 +10,10 @@ No registration/setup required, just start *baudcasting* and receiving key-value
 
 ## Installation
 
-Open your app's node_modules folder in the terminal and run the following commands:
+Open your app's folder in the terminal and run the following command:
 
 ```sh
-$ git clone https://github.com/nilakshdas/baudcast.git
-$ cd baudcast/
-$ npm install
+$ npm install baudcast
 ```
 
 ## Usage
@@ -234,3 +232,7 @@ Again, because *baudcasts* are ephemeral, only the last 800 *baudcasts* are stor
 #### useTemplate(newTemplate)
 
 This function is used to specify the response template of the REST API. Note that it's argument is a JSON object that should contain the methods `respondSuccess` and `respondFailure`, whose signatures should follow guidelines in the example.
+
+## Examples
+
+[Simple wireless control of Arduino LED](https://github.com/nilakshdas/baudcast/wiki/Example:-Simple-wireless-control-of-Arduino-LED)
