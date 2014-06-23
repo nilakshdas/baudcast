@@ -1,6 +1,6 @@
 {
     "name": "baudcast",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "license": "MIT",
     "description": "An open source, socket-based, realtime messaging API; designed for the internet of things.",
     "author": {
