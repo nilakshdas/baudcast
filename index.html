@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Baudcast by nilakshdas</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Baudcast</h1>
+        <h2>A socket-based, realtime messaging API; designed for the internet of things.</h2>
+        <a href="https://github.com/nilakshdas/baudcast" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="baudcast" class="anchor" href="#baudcast"><span class="octicon octicon-link"></span></a>baudcast</h1>
+
+<p><img src="https://david-dm.org/nilakshdas/baudcast.png" alt="dependencies"></p>
+
+<p>A socket-based, realtime messaging API; designed for the <strong>internet of things</strong>.</p>
+
+<p><em>baudcast</em> is a node module that allows machine-to-machine (M2M) communication of internet-connected devices over a simple and configurable REST API.</p>
+
+<p>No registration/setup required, just start <em>baudcasting</em> and receiving key-value data right away.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Open your app's folder in the terminal and run the following command:</p>
+
+<div class="highlight highlight-sh"><pre><span class="nv">$ </span>npm install baudcast
+</pre></div>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p><em>baudcast</em> can be easily configured to use custom endpoints and response templates.</p>
+
+<p>As an example, the <a href="https://github.com/jheising/HAPI">HAPI</a>-REST API specification has been implemented with <em>baudcast</em>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'express'</span><span class="p">)();</span>
+<span class="kd">var</span> <span class="nx">bodyParser</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'body-parser'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">).</span><span class="nx">Server</span><span class="p">(</span><span class="nx">app</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'redis'</span><span class="p">).</span><span class="nx">createClient</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">baudcast</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'baudcast'</span><span class="p">)(</span><span class="nx">server</span><span class="p">,</span> <span class="nx">client</span><span class="p">);</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">bodyParser</span><span class="p">());</span> <span class="c1">// necessary for handling POST variables</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span> <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">'&lt;i&gt;baudcasting&lt;/i&gt; things...'</span><span class="p">);</span> <span class="p">});</span>
+
+
+<span class="cm">/* set up endpoint to make a baudcast */</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">'/baudcast/for/:thing'</span><span class="p">,</span> <span class="nx">baudcast</span><span class="p">.</span><span class="nx">route</span><span class="p">.</span><span class="nx">makeNewBaudcast</span><span class="p">);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/baudcast/for/:thing'</span><span class="p">,</span> <span class="nx">baudcast</span><span class="p">.</span><span class="nx">route</span><span class="p">.</span><span class="nx">makeNewBaudcast</span><span class="p">);</span> <span class="c1">// GET works too</span>
+
+<span class="cm">/* set up endpoint to get last baudcast */</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/get/last/baudcast/from/:thing'</span><span class="p">,</span> <span class="nx">baudcast</span><span class="p">.</span><span class="nx">route</span><span class="p">.</span><span class="nx">getLastBaudcast</span><span class="p">);</span>
+
+<span class="cm">/* set up endpoint to get last 800 baudcasts */</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/get/baudcasts/from/:thing'</span><span class="p">,</span> <span class="nx">baudcast</span><span class="p">.</span><span class="nx">route</span><span class="p">.</span><span class="nx">getBaudcasts</span><span class="p">);</span>
+
+
+<span class="cm">/* set up custom response template */</span>
+<span class="kd">var</span> <span class="nx">template</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">verb</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">get</span><span class="o">:</span> <span class="s1">'getting'</span><span class="p">,</span>
+        <span class="nx">create</span><span class="o">:</span> <span class="s1">'creating'</span>
+    <span class="p">},</span>
+
+    <span class="nx">respondSuccess</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">resourceType</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="k">this</span><span class="o">:</span> <span class="s2">"succeeded"</span><span class="p">,</span>
+            <span class="nx">by</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">verb</span><span class="p">[</span><span class="nx">action</span><span class="p">],</span>
+            <span class="nx">the</span><span class="o">:</span> <span class="nx">resourceType</span><span class="p">,</span>
+            <span class="kd">with</span><span class="o">:</span> <span class="nx">data</span>
+        <span class="p">};</span>
+
+        <span class="k">return</span> <span class="nx">response</span><span class="p">;</span>
+    <span class="p">},</span>
+
+    <span class="nx">respondFailure</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">why</span><span class="p">,</span> <span class="nx">apiErrorCode</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="k">this</span><span class="o">:</span> <span class="s2">"failed"</span><span class="p">,</span>
+            <span class="kd">with</span><span class="o">:</span> <span class="nx">apiErrorCode</span> <span class="o">||</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="nx">because</span><span class="o">:</span> <span class="nx">why</span>
+        <span class="p">};</span>
+
+        <span class="k">return</span> <span class="nx">response</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="nx">baudcast</span><span class="p">.</span><span class="nx">useTemplate</span><span class="p">(</span><span class="nx">template</span><span class="p">);</span>
+
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">3000</span><span class="p">);</span>
+<span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">8888</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Server on port 3000, socket on port 8888...'</span><span class="p">);</span>
+</pre></div>
+
+<h3>
+<a name="baudcasting" class="anchor" href="#baudcasting"><span class="octicon octicon-link"></span></a><em>baudcasting</em>
+</h3>
+
+<p>Simply call the following URL(as set up in the code) to make a new <em>baudcast</em>:</p>
+
+<pre><code>http://{some-host}:3000/baudcast/for/{thing}?foo=bar&amp;baz=qux
+</code></pre>
+
+<p>The server will respond with:</p>
+
+<div class="highlight highlight-json"><pre><span class="p">{</span>
+    <span class="nt">"this"</span><span class="p">:</span> <span class="s2">"succeeded"</span><span class="p">,</span>
+    <span class="nt">"by"</span><span class="p">:</span> <span class="s2">"creating"</span><span class="p">,</span>
+    <span class="nt">"the"</span><span class="p">:</span> <span class="s2">"baudcast"</span><span class="p">,</span>
+    <span class="nt">"with"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"thing"</span><span class="p">:</span> <span class="s2">"{thing}"</span><span class="p">,</span>
+        <span class="nt">"created"</span><span class="p">:</span> <span class="mi">1402642240997</span><span class="p">,</span>
+        <span class="nt">"content"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">"foo"</span><span class="p">:</span> <span class="s2">"bar"</span><span class="p">,</span>
+            <span class="nt">"baz"</span><span class="p">:</span> <span class="s2">"qux"</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>The POST method can also be used to <em>baudcast</em> valid JSON data.</p>
+
+<h3>
+<a name="getting-baudcasts" class="anchor" href="#getting-baudcasts"><span class="octicon octicon-link"></span></a>Getting <em>baudcasts</em>
+</h3>
+
+<p>The last 800 <em>baudcasts</em> made by a <em>thing</em> over the last 24 hours can be retrieved by calling the following URL:</p>
+
+<pre><code>http://{some-host}:3000/get/baudcasts/from/{thing}
+</code></pre>
+
+<p>The server will return an array of <em>baudcasts</em> in the following form:</p>
+
+<div class="highlight highlight-json"><pre><span class="p">{</span>
+    <span class="nt">"this"</span><span class="p">:</span> <span class="s2">"succeeded"</span><span class="p">,</span>
+    <span class="nt">"by"</span><span class="p">:</span> <span class="s2">"getting"</span><span class="p">,</span>
+    <span class="nt">"the"</span><span class="p">:</span> <span class="s2">"baudcasts"</span><span class="p">,</span>
+    <span class="nt">"with"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">"thing"</span><span class="p">:</span> <span class="s2">"{thing}"</span><span class="p">,</span>
+            <span class="nt">"created"</span><span class="p">:</span> <span class="mi">1402642240997</span><span class="p">,</span>
+            <span class="nt">"content"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">"hello"</span><span class="p">:</span> <span class="s2">"again"</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">"thing"</span><span class="p">:</span> <span class="s2">"{thing}"</span><span class="p">,</span>
+            <span class="nt">"created"</span><span class="p">:</span> <span class="mi">1402640319211</span><span class="p">,</span>
+            <span class="nt">"content"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">"hello"</span><span class="p">:</span> <span class="s2">"world"</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>The latest <em>baudcast</em> made by a thing can be retrieved by making a call to the following URL:</p>
+
+<pre><code>http://{some-host}:3000/get/last/baudcast/from/{thing}
+</code></pre>
+
+<p>The server will return a single baudcast in the following form:</p>
+
+<div class="highlight highlight-json"><pre><span class="p">{</span>
+    <span class="nt">"this"</span><span class="p">:</span> <span class="s2">"succeeded"</span><span class="p">,</span>
+    <span class="nt">"by"</span><span class="p">:</span> <span class="s2">"getting"</span><span class="p">,</span>
+    <span class="nt">"the"</span><span class="p">:</span> <span class="s2">"baudcast"</span><span class="p">,</span>
+    <span class="nt">"with"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"thing"</span><span class="p">:</span> <span class="s2">"{thing}"</span><span class="p">,</span>
+        <span class="nt">"created"</span><span class="p">:</span> <span class="mi">1402642240997</span><span class="p">,</span>
+        <span class="nt">"content"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">"foo"</span><span class="p">:</span> <span class="s2">"bar"</span><span class="p">,</span>
+            <span class="nt">"baz"</span><span class="p">:</span> <span class="s2">"qux"</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Apart from the API endpoints, a device can also subscribe to a <em>thing</em> (or publish a new <em>baudcast</em>) using the popular <strong>socket.io</strong> framework.</p>
+
+<p>To use <em>baudcast</em> with js, just include the <strong>socket.io</strong> script:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://cdn.socket.io/socket.io-1.0.4.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</pre></div>
+
+<p>and use the following code:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">socket</span> <span class="o">=</span> <span class="nx">io</span><span class="p">(</span><span class="s1">'http://{some-host}:8888'</span><span class="p">);</span>
+
+<span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">'subscribe'</span><span class="p">,</span> <span class="s1">'{thing}'</span><span class="p">);</span> <span class="c1">// you can subscribe to as many things you like</span>
+
+<span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'baudcast'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">baudcast</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// do your magic here</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">baudcast</span><span class="p">);</span>
+
+<span class="p">});</span>
+
+<span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">'baudcast'</span><span class="p">,</span> <span class="s1">'{another-thing}'</span><span class="p">,</span> <span class="p">{</span><span class="nx">ping</span><span class="o">:</span> <span class="s1">'pong'</span><span class="p">});</span>
+</pre></div>
+
+<p>Each <em>baudcast</em> received, for a subscribed <em>thing</em> will be an Object of the form:</p>
+
+<pre><code>{
+    thing: "{thing}",
+    created: 1402642240997,
+    content: {
+        foo: "bar",
+        baz: "qux"
+    }
+}
+</code></pre>
+
+<h2>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
+
+<h4>
+<a name="forthing-content" class="anchor" href="#forthing-content"><span class="octicon octicon-link"></span></a>for(thing, content)</h4>
+
+<p>This function makes a new <em>baudcast</em> for a <em>thing</em>.</p>
+
+<h4>
+<a name="fromthing-callback" class="anchor" href="#fromthing-callback"><span class="octicon octicon-link"></span></a>from(thing, callback)</h4>
+
+<p>This function executes callback(baudcast) everytime a <em>thing</em> makes a new <em>baudcast</em>.</p>
+
+<h4>
+<a name="routemakenewbaudcastreq-res" class="anchor" href="#routemakenewbaudcastreq-res"><span class="octicon octicon-link"></span></a>route.makeNewBaudcast(req, res)</h4>
+
+<p>This is the app handler for making a new <em>baudcast</em>. This supports POST as well as GET variables.</p>
+
+<h4>
+<a name="routegetlastbaudcastreq-res" class="anchor" href="#routegetlastbaudcastreq-res"><span class="octicon octicon-link"></span></a>route.getLastBaudcast(req, res)</h4>
+
+<p>This is the handler for retrieving the most recent <em>baudcast</em> made by a <em>thing</em>.
+Since <em>baudcasts</em> are realtime and ephemeral, they are only stored for 24 hours.</p>
+
+<h4>
+<a name="routegetbaudcastsreq-res" class="anchor" href="#routegetbaudcastsreq-res"><span class="octicon octicon-link"></span></a>route.getBaudcasts(req, res)</h4>
+
+<p>This is the handler for retrieving all the <em>baudcasts</em> made by a <em>thing</em>.
+Again, because <em>baudcasts</em> are ephemeral, only the last 800 <em>baudcasts</em> are stored.</p>
+
+<h4>
+<a name="usetemplatenewtemplate" class="anchor" href="#usetemplatenewtemplate"><span class="octicon octicon-link"></span></a>useTemplate(newTemplate)</h4>
+
+<p>This function is used to specify the response template of the REST API. Note that it's argument is a JSON object that should contain the methods <code>respondSuccess</code> and <code>respondFailure</code>, whose signatures should follow guidelines in the example.</p>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<p><a href="https://github.com/nilakshdas/baudcast/wiki/Example:-Simple-wireless-control-of-Arduino-LED">Simple wireless control of Arduino LED</a></p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/nilakshdas/baudcast/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/nilakshdas/baudcast/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/nilakshdas/baudcast"></a> is maintained by <a href="https://github.com/nilakshdas">nilakshdas</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
